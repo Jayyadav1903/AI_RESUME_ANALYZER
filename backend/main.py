@@ -1,8 +1,6 @@
 import os
 from dotenv import load_dotenv
 load_dotenv()
-SECRET_KEY = os.getenv("SECRET_KEY")
-ALGORITHM = "HS256"
 
 from fastapi import FastAPI, Depends, UploadFile, File, Form, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
@@ -20,6 +18,12 @@ from google import genai
 from google.genai import types
 
 # Load the secret key from the .env file
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = "HS256"
+
+if not SECRET_KEY:
+    # This will show up in your Render logs if the key is missing!
+    print("❌ ERROR: SECRET_KEY not found in environment variables!")
 
 # --- 1. DATABASE SETUP ---
 # This creates a "factory" for database sessions
