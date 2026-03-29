@@ -1,11 +1,14 @@
 from datetime import datetime, timedelta
 import jwt 
 import bcrypt
+import os
+from dotenv import load_dotenv
 
-#In production hide this in .env file
-SECRET_KEY = "your-super-secret-development-key"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+load_dotenv()
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
+ACCESS_TOKEN_EXPIRE = int(os.getenv("ACCESS_TOKEN_EXPIRE"))
 
 def get_password_hash(password: str) -> str:
     """Converts a plain password into a secure bcrypt hash."""
