@@ -16,7 +16,7 @@ interface ReportDetail {
 
 function App() {
   
-  const API_URL = import.meta.env.VITE_API_URL || "https://ai-resume-analyzer-2apu.onrender.com";
+  const API_URL ="https://ai-resume-analyzer-2apu.onrender.com";
   
   // --- AUTH STATE ---
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
