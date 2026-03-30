@@ -52,20 +52,20 @@ app = FastAPI()
 
 #1. URLs that are allowed to interact with this API
 origins = [
-    "https://localhost:5173",#React App
-    "https://127.0.0.1:5173",
-    "https://ai-resume-analyzer-seven-psi.vercel.app",
+    "http://localhost:5173",    # Standard Vite/React port
+    "http://127.0.0.1:5173",    # Alternative local IP
+    "https://ai-resume-analyzer-seven-psi.vercel.app", # Your production frontend
 ]
-
 #2. Add the CORS middleware to your FastAPI app
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"], # Allows all methods (GET, POST, etc.)
-    allow_headers=["*"], # Allows all headers
+    allow_origins=origins,            # Use the list above
+    allow_credentials=True,           # Required for cookies/auth headers
+    allow_methods=["*"],              # Allow GET, POST, OPTIONS, etc.
+    allow_headers=["*"],              # Allow all headers (Content-Type, Authorization)
+    expose_headers=["*"],             # Expose all headers to the frontend (optional, but can be useful for debugging)
 )
-
+ 
 # --- DATA VALIDATION ---
 # This tells FastAPI exactly what data to expect from React when creating a user
 class UserCreate(BaseModel):
