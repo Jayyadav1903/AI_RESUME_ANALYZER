@@ -185,7 +185,11 @@ def run_ai_analysis(analysis_id: int, extracted_text:str, job_description: str):
             analysis.suggestions = ai_analysis.get("suggestions", [])
             db.commit()
     except Exception as e:
-        print(f"Error in AI analysis: {e}")
+        print(f"Error: {e}")
+        analysis = db.query(ResumeAnalysis).filter(ResumeAnalysis.id == analysis_id).first()
+        if analysis:
+            analysis.status = "failed" # <--- Handle errors gracefully
+            db.commit()
     finally:
         db.close()    
                 
@@ -314,13 +318,23 @@ def get_analysis_status(
 ):
     analysis = db.query(ResumeAnalysis).filter(ResumeAnalysis.id == analysis_id,ResumeAnalysis.user_id == current_user.id).first()
     
+    #2 Safety Check
     if not analysis:
         raise HTTPException(status_code=404, detail="Analysis not found")
     
-    # If the score is still 0, it's likely still processing
-    return {
-        "is_ready": analysis.score > 0,
-        "data": analysis if analysis.score > 0 else None
-    }   
+    #3. The "is-ready" logic
+    # We check if the score is > 0.
+    # If it is, the background task has completed and we have results to show!
+    return{
+        "is_ready": analysis.score,
+        "data": {
+            "score": analysis.score,
+            "skills": analysis.skills,
+            "missing_skills": analysis.missing_skills,
+            "suggestions": analysis.suggestions
+        } if analysis.score > 0 else None
+    }
+    
+    
             
     
