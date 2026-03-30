@@ -326,13 +326,14 @@ def get_analysis_status(
     # We check if the score is > 0.
     # If it is, the background task has completed and we have results to show!
     return{
-        "is_ready": analysis.score,
+        "status": analysis.status,
+        "is_ready": analysis.status == "completed",
         "data": {
             "score": analysis.score,
             "skills": analysis.skills,
             "missing_skills": analysis.missing_skills,
             "suggestions": analysis.suggestions
-        } if analysis.score > 0 else None
+        } if analysis.status == "completed" else None
     }
     
     
