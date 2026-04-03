@@ -12,8 +12,11 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 engine = create_engine(
     DATABASE_URL, 
     echo=True, 
+    pool_size=5,
     pool_pre_ping=True,  # Checks if connection is alive before querying
-    pool_recycle=300     # Recycles connections every 5 minutes to keep Neon happy
+    pool_recycle=1800,
+    pool_timeout=30,
+    max_overflow=10,
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
