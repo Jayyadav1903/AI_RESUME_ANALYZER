@@ -2,7 +2,7 @@ import os
 import json
 import hashlib
 import redis
-
+import ssl
 from celery import Celery
 from google import genai
 from google.genai import types
