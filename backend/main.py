@@ -1,6 +1,7 @@
 import os
 import shutil
 import json
+import io
 import jwt
 import fitz
 from docx import Document
@@ -85,6 +86,17 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     return user
 
 # --- HELPERS ---
+def extract_text_from_pdf_bytes(file_bytes):
+    text = ""
+    with fitz.open(stream=file_bytes, filetype="pdf") as doc:
+        for page in doc: text += page.get_text()
+    return text
+
+def extract_text_from_docx_bytes(file_bytes):
+    doc = Document(io.BytesIO(file_bytes))
+    return "\n".join([para.text for para in doc.paragraphs])
+
+
 def extract_text_from_pdf(file_path):
     text = ""
     with fitz.open(file_path) as doc:
@@ -143,25 +155,20 @@ async def analyze_resume(
         )
         
     file_bytes = await file.read()
+    
     if len(file_bytes) > MAX_FILE_SIZE_BYTES:
         raise HTTPException(
             status_code=400,
             detail=f"File too large. Max size is {MAX_FILE_SIZE_MB} MB."
         )    
     
-    # 3. Rewind the file pointer! 
-    # Because we read the file to check its size, we have to reset it so `shutil.copyfileobj` works.
-    await file.seek(0)
-    # ---------------------------------------------------
-    
-    # 1. Save File
-    file_path = os.path.join(UPLOAD_DIR, file.filename)
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-        
-    # 2. Extract Text
-    text = extract_text_from_pdf(file_path) if file.filename.endswith('.pdf') else extract_text_from_docx(file_path)
-    
+    try:
+        if file.filename.endswith('.pdf'):
+            text = extract_text_from_pdf_bytes(file_bytes)
+        else:
+            text = extract_text_from_docx_bytes(file_bytes)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Could not read file text: {str(e)}")
     
     # 3. Create a pending Job in the Database
     new_job = AnalysisJob(user_id=current_user.id,status="pending")
