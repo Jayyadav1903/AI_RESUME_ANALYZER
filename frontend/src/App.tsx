@@ -162,6 +162,15 @@ function App() {
     localStorage.removeItem('token');
     setToken(null);
     setStep('upload');
+
+    setFile(null);
+    setJobDescription('');
+    setErrorMessage('');
+    
+    setScore(0);
+    setSkills([]);
+    setMissingSkills([]);
+    setSuggestions([]);
   };
 
   // ==========================================
