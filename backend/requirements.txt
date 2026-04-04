@@ -16,3 +16,4 @@ google-genai
 faiss-cpu
 numpy
 email-validator
+rank_bm25==0.2.2
